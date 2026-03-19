@@ -1,0 +1,45 @@
+apiVersion: apps/v1  # Deployment is part of the "apps" API group, not core
+kind: Deployment
+metadata:
+  name: demo  # Deployment name (you can keep your old one)
+spec:
+  replicas: 1  # Number of pods to run
+  selector:    # How to identify pods belonging to this deployment
+    matchLabels:
+      app: demo
+  template:    # Pod template: defines what pods will look like
+    metadata:
+      labels:
+        app: demo  # Must match the selector above
+    spec:
+      containers:
+        - name: demo  # Name of the container inside the pod
+          image: nginx:stable  # Docker image to run
+          ports:
+            - containerPort: 80  # Container port NGINX listens on
+          resources:  # CPU/memory requests & limits for the pod
+            requests:
+              memory: "10Mi"
+              cpu: "100m"
+            limits:
+              memory: "20Mi"
+              cpu: "250m"
+          livenessProbe:  # Kubernetes checks if container is alive
+            httpGet:
+              path: /       # Check the root path
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:  # Kubernetes checks if container is ready to serve
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          volumeMounts:  # Mount volumes inside the container
+            - name: html-volume
+              mountPath: /usr/share/nginx/html  # NGINX serves files from here
+      volumes:  # Define volumes available to this pod
+        - name: html-volume
+          configMap:
+            name: hello-page  # Name of the ConfigMap containing index.html
