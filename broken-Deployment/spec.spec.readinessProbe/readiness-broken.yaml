@@ -6,7 +6,7 @@ metadata:
   labels:
     app: readiness-broken-app-label
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: readiness-broken-app-label
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: readiness-broken-container
-          image: eu.gcr.io/container-solutions-workshops//backend:3.14159
+          image: nginx:stable
           ports:
             - containerPort: 8080
           env:
@@ -26,8 +26,8 @@ spec:
               value: "enabled"
           readinessProbe:
             httpGet:
-              path: /neverready
-              port: 8080
+              path: /
+              port: 80
               scheme: HTTP
             initialDelaySeconds: 5
             timeoutSeconds: 5
